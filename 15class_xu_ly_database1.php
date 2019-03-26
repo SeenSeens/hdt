@@ -19,7 +19,7 @@ class DB_drive {
         // Nếu chưa kết nối thì thực hiện kết nối
         if(!$this->__conn) {
             // Kết nối
-            $this->__conn = mysqli_connect('localhost', 'root', 'tencsdl', 'matkhau') or die('Lỗi kết nối');
+            $this->__conn = mysqli_connect('localhost', 'root', '', 'hdt') or die('Lỗi kết nối');
             // Utf-8 tránh lỗi font
             mysqli_query($this->__conn, "SET character_set_results = 'utf-8', character_set_client = 'utf-8', character_set_database = 'utf-8', character_set_server = 'utf-8'");
         }
@@ -42,7 +42,7 @@ class DB_drive {
         // Lặp qua data
         foreach($data as $key => $value) {
             $field_list .= $key;
-            $value_list .= ", '".mysql_escape_string($value)."' ";
+            $value_list .= ", '".mysqli_real_escape_string($this->__conn, $value)."' ";
         }
         // Sau vòng lặp sẽ dư dấu , dùng hàm trim() để xóa dấu ,
         $sql = 'INSERT INTO'.$table.'('.trim($field_list, ',').') VALUES('.trim($value_list, ',').')';
@@ -55,7 +55,7 @@ class DB_drive {
         $sql = '';
         // Lặp qua data
         foreach($data as $key => $value) {
-            $sql .="$key = '".mysql_escape_string($value)"',"; 
+            $sql .="$key = '".mysqli_real_escape_string($this->__conn, $value)."',"; 
         }
         // Vì sau vòng lặp biến $sql sẽ dư dấu (,) dùng hàm trim() để xóa nó
         $sql = 'UPDATE'.$table.'SET'.trim($sql, ',').'WHERE'.$where;
@@ -70,7 +70,7 @@ class DB_drive {
         return mysqli_query($this->__conn, $sql);
     }
     // Hàm lấy danh sách
-    function get_list($table, $select, $where) {
+    function get_list($sql) {
         // Kết nối
         $this->connect();
         $result = mysqli_query($this->__conn, $sql);
@@ -87,10 +87,10 @@ class DB_drive {
         return $return;
     }
     // Hàm lấy 1 record 
-    function get_row($table, $select, $where) {
+    function get_row($sql) {
         // Kết nối
         $this->connect();
-        $result = mysqli_query($this->_conn, $sql);
+        $result = mysqli_query($this->__conn, $sql);
         if(!$result) {
             die('Truy vấn bị sai');
         }
